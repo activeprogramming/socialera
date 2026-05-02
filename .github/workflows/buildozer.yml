@@ -2,14 +2,12 @@ name: Build APK
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [ master, main ]
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # o ubuntu-22.04
 
     steps:
     - name: Checkout code
@@ -23,7 +21,7 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt update
-        sudo apt install -y autoconf libtool pkg-config zip unzip zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev
+        sudo apt install -y autoconf libtool pkg-config zip unzip zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev aidl
 
     - name: Install Cython and Buildozer
       run: |
@@ -32,7 +30,7 @@ jobs:
     - name: Initialize Buildozer
       run: buildozer init
 
-    - name: Update buildozer.spec (title, package, icon, etc.)
+    - name: Update buildozer.spec
       run: |
         sed -i 's/^title = .*/title = Historia Viva/' buildozer.spec
         sed -i 's/^package.name = .*/package.name = historiaviva/' buildozer.spec
@@ -44,10 +42,16 @@ jobs:
         sed -i 's/^fullscreen = .*/fullscreen = 1/' buildozer.spec
         sed -i 's/^orientation = .*/orientation = portrait/' buildozer.spec
 
+    - name: Accept Android SDK licenses
+      run: |
+        mkdir -p ~/.android
+        # Forzar aceptación de licencias
+        yes | $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
     - name: Build APK
       run: buildozer android debug
 
-    - name: Upload APK as artifact
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: HistoriaViva-APK
