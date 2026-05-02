@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04  # <- IMPORTANTE: usa 20.04, no latest
+    runs-on: ubuntu-22.04  # <- IMPORTANTE: usa 20.04, no latest
 
     steps:
     - name: Checkout code
