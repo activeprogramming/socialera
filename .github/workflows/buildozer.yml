@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # o ubuntu-22.04
+    runs-on: ubuntu-latest 
 
     steps:
     - name: Checkout code
@@ -21,7 +21,7 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt update
-        sudo apt install -y autoconf libtool pkg-config zip unzip zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev aidl
+        sudo apt install -y autoconf libtool pkg-config zip unzip zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev
 
     - name: Install Cython and Buildozer
       run: |
@@ -41,15 +41,20 @@ jobs:
         sed -i 's/^icon.filename = .*/icon.filename = icono.png/' buildozer.spec
         sed -i 's/^fullscreen = .*/fullscreen = 1/' buildozer.spec
         sed -i 's/^orientation = .*/orientation = portrait/' buildozer.spec
+        # Agregar líneas clave
+        echo "android.accept_sdk_license = True" >> buildozer.spec
+        echo "android.ndk = 23b" >> buildozer.spec
+        echo "android.sdk = 30" >> buildozer.spec
 
     - name: Accept Android SDK licenses
       run: |
         mkdir -p ~/.android
-        # Forzar aceptación de licencias
         yes | $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
     - name: Build APK
-      run: buildozer android debug
+      run: |
+        rm -rf .buildozer
+        buildozer android debug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
