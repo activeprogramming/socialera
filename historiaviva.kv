@@ -1,0 +1,214 @@
+#:kivy 2.0
+
+<MenuScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 40
+        spacing: 20
+        
+        Image:
+            source: 'imagenes/fondo_menu.png'
+            allow_stretch: True
+            keep_ratio: False
+            size_hint: 1, 1
+            pos_hint: {'x': 0, 'y': 0}
+            z_index: -1
+        
+        Label:
+            text: "APLICATIVO HISTORIA VIVA"
+            font_size: '48sp'
+            size_hint_y: 0.2
+            color: 1, 0.8, 0.2, 1
+            bold: True
+        Label:
+            text: "CIENCIAS SOCIALES"
+            font_size: '36sp'
+            size_hint_y: 0.1
+            color: 1, 1, 1, 1
+        
+        Label:
+            id: puntaje_label
+            text: "Puntaje total: 0"
+            font_size: '24sp'
+            size_hint_y: 0.1
+        
+        Button:
+            text: "🗺️ Ver mapa de civilizaciones"
+            size_hint_y: 0.15
+            background_color: 0.2, 0.5, 0.8, 1
+            on_press: app.root.current = 'mapa'
+        
+        Button:
+            text: "🏆 Ver logros"
+            size_hint_y: 0.12
+            on_press: app.root.current = 'logros'
+        
+        Button:
+            text: "🔄 Reiniciar juego"
+            size_hint_y: 0.12
+            background_color: 0.8, 0.2, 0.2, 1
+            on_press: root.reiniciar_juego()
+        
+        Button:
+            text: "Salir"
+            size_hint_y: 0.1
+            background_color: 0.4, 0.4, 0.4, 1
+            on_press: app.stop()
+
+<MapaScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 10
+        
+        Image:
+            source: 'imagenes/mapa.png'
+            allow_stretch: True
+            keep_ratio: False
+            size_hint: 1, 0.4
+        
+        GridLayout:
+            cols: 2
+            spacing: 10
+            size_hint_y: 0.5
+            
+            Button:
+                id: btn_m0
+                text: "Grecia"
+                on_press: 
+                    app.root.get_screen('mision_detalle').mision_id = 0
+                    app.root.current = 'mision_detalle'
+            Button:
+                id: btn_m1
+                text: "Roma"
+                on_press: 
+                    app.root.get_screen('mision_detalle').mision_id = 1
+                    app.root.current = 'mision_detalle'
+            Button:
+                id: btn_m2
+                text: "Egipto"
+                on_press: 
+                    app.root.get_screen('mision_detalle').mision_id = 2
+                    app.root.current = 'mision_detalle'
+            Button:
+                id: btn_m3
+                text: "Mayas"
+                on_press: 
+                    app.root.get_screen('mision_detalle').mision_id = 3
+                    app.root.current = 'mision_detalle'
+            Button:
+                id: btn_m4
+                text: "China"
+                on_press: 
+                    app.root.get_screen('mision_detalle').mision_id = 4
+                    app.root.current = 'mision_detalle'
+            Button:
+                id: btn_m5
+                text: "Edad Media"
+                on_press: 
+                    app.root.get_screen('mision_detalle').mision_id = 5
+                    app.root.current = 'mision_detalle'
+            Button:
+                id: btn_m6
+                text: "Renacimiento"
+                on_press: 
+                    app.root.get_screen('mision_detalle').mision_id = 6
+                    app.root.current = 'mision_detalle'
+            Button:
+                id: btn_m7
+                text: "Revolución Francesa"
+                on_press: 
+                    app.root.get_screen('mision_detalle').mision_id = 7
+                    app.root.current = 'mision_detalle'
+            Button:
+                id: btn_m8
+                text: "Independencia México"
+                on_press: 
+                    app.root.get_screen('mision_detalle').mision_id = 8
+                    app.root.current = 'mision_detalle'
+            Button:
+                id: btn_m9
+                text: "Globalización"
+                on_press: 
+                    app.root.get_screen('mision_detalle').mision_id = 9
+                    app.root.current = 'mision_detalle'
+        
+        Button:
+            text: "Volver al menú"
+            size_hint_y: 0.1
+            on_press: app.root.current = 'menu'
+
+<MisionDetalleScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 15
+        
+        Image:
+            source: 'imagenes/' + root.titulo.lower().split()[0] + '.jpg' if root.titulo else 'imagenes/grecia.jpg'
+            allow_stretch: True
+            keep_ratio: False
+            size_hint_y: 0.3
+        
+        Label:
+            text: root.titulo
+            font_size: '34sp'
+            color: 0.9, 0.6, 0.1, 1
+        
+        Label:
+            text: root.historia
+            font_size: '18sp'
+            size_hint_y: 0.2
+            text_size: self.width, None
+            halign: 'left'
+        
+        Label:
+            text: "¿Qué decisión tomas?"
+            font_size: '22sp'
+            bold: True
+        
+        Button:
+            id: btn_opcionA
+            text: root.opcionA_texto
+            background_color: 0.2, 0.6, 0.2, 1
+            on_press: root.elegir_opcion('A')
+        
+        Button:
+            id: btn_opcionB
+            text: root.opcionB_texto
+            background_color: 0.6, 0.2, 0.2, 1
+            on_press: root.elegir_opcion('B')
+        
+        Label:
+            id: mensaje_completada
+            text: ""
+            color: 1, 0.5, 0, 1
+            font_size: '18sp'
+        
+        Button:
+            text: "Volver al mapa"
+            size_hint_y: 0.1
+            on_press: app.root.current = 'mapa'
+
+<LogrosScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 30
+        spacing: 20
+        
+        Label:
+            text: "🏆 TUS LOGROS 🏆"
+            font_size: '40sp'
+            color: 1, 0.8, 0, 1
+        
+        Label:
+            id: resumen
+            text: ""
+            font_size: '22sp'
+            text_size: self.width, None
+            halign: 'center'
+        
+        Button:
+            text: "Regresar al menú"
+            size_hint_y: 0.15
+            on_press: root.regresar_menu()
