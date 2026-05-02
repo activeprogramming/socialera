@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04  # <- IMPORTANTE: usa 20.04, no latest
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout code
@@ -16,61 +16,49 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.11'
+        python-version: '3.10'   # <- CRUCIAL: 3.10, no 3.11
 
     - name: Install system dependencies
       run: |
         sudo apt update
         sudo apt install -y autoconf libtool pkg-config zip unzip zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev
+        # libtinfo5 workaround
+        sudo apt install -y libtinfo6
+        sudo ln -s /usr/lib/x86_64-linux-gnu/libtinfo.so.6 /usr/lib/x86_64-linux-gnu/libtinfo.so.5
 
-    - name: Install Cython and Buildozer
+    - name: Install Cython (specific version) and Buildozer
       run: |
-        pip install --upgrade cython buildozer
+        pip install --upgrade pip
+        pip install cython==0.29.37   # <- versión estable
+        pip install buildozer
 
     - name: Initialize Buildozer
       run: buildozer init
 
     - name: Configure buildozer.spec
       run: |
-        # Configurar parámetros básicos
         sed -i 's/^title = .*/title = Historia Viva/' buildozer.spec
         sed -i 's/^package.name = .*/package.name = historiaviva/' buildozer.spec
         sed -i 's/^package.domain = .*/package.domain = org.activeprogramming/' buildozer.spec
         sed -i 's/^source.dir = .*/source.dir = ./' buildozer.spec
         sed -i 's/^source.include_exts = .*/source.include_exts = py,png,jpg,kv,json/' buildozer.spec
-        sed -i 's/^requirements = .*/requirements = python3,kivy==2.3.1/' buildozer.spec
+        sed -i 's/^requirements = .*/requirements = python3,kivy==2.3.1,cython==0.29.37/' buildozer.spec
         sed -i 's/^icon.filename = .*/icon.filename = icono.png/' buildozer.spec
         sed -i 's/^fullscreen = .*/fullscreen = 1/' buildozer.spec
         sed -i 's/^orientation = .*/orientation = portrait/' buildozer.spec
-
-        # Líneas CRÍTICAS para evitar errores de licencias y versiones
+        # Forzar aceptación de licencias y versiones
         echo "android.accept_sdk_license = True" >> buildozer.spec
         echo "android.sdk = 30" >> buildozer.spec
         echo "android.ndk = 23b" >> buildozer.spec
         echo "android.build_tools = 30.0.3" >> buildozer.spec
         echo "android.api = 30" >> buildozer.spec
 
-    - name: Pre-accept Android SDK licenses
+    - name: Build APK
       run: |
-        # Crear directorio y archivo de licencias para que no pregunte
-        mkdir -p ~/.android
-        touch ~/.android/repositories.cfg
-        # Aceptar licencias de forma silenciosa (opcional, pero ayuda)
-        echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > ~/.android/license
-        echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> ~/.android/license
-
-    - name: Build APK (force accept licenses)
-      run: |
-        # Esta variable de entorno evita prompts de licencia
-        export ANDROID_SDK_HOME=$HOME/.buildozer/android/platform/android-sdk
-        # Limpiar compilaciones previas
+        # Clean previous builds
         rm -rf .buildozer
-        # Ejecutar buildozer con yes para cualquier pregunta
-        yes | buildozer android debug || echo "Buildozer finished with exit code, continuing"
-        # Si falló por licencias, forzar nuevamente
-        yes | $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
-        # Reintentar build
-        buildozer android debug
+        # Accept licenses automatically
+        yes | buildozer android debug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
